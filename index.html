@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- KT-06: no outbound requests; the app only loads its own assets. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <title>QR Studio — QR codes for your links</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v7H3zM5 5v3h3V5zM14 3h7v7h-7zm2 2v3h3V5zM3 14h7v7H3zm2 2v3h3v-3zM14 14h3v3h-3zM18 18h3v3h-3zM18 14h3v2h-3zM14 18h2v3h-2z" /></svg>
+        <div>
+          <h1>QR Studio</h1>
+          <p data-i18n="brand.tagline">Make QR codes for links — custom patterns, colors, captions and frames</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <p class="privacy">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.5 8 11 4.6-1.5 8-6 8-11V5z" /></svg>
+          <span data-i18n="privacy">Runs entirely in your browser — your link never leaves your device</span>
+        </p>
+        <div id="lang" class="segmented lang-switch" role="radiogroup" data-i18n-aria="lang.aria" aria-label="Interface language"></div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="controls" data-i18n-aria="controls.aria" aria-label="Customize">
+        <div class="card">
+          <div class="card-head"><h2><span class="step">1</span><span data-i18n="section.link">Link</span></h2></div>
+          <label class="sr-only" for="url" data-i18n="url.label">Link to turn into a QR code</label>
+          <input id="url" class="url-input" type="text" inputmode="url" autocomplete="off" spellcheck="false" data-i18n-placeholder="url.placeholder" placeholder="Paste a link, e.g. example.com/signup" />
+          <p id="url-msg" class="field-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2><span class="step">2</span><span data-i18n="section.pattern">Pattern</span></h2></div>
+          <p class="label" data-i18n="dots.label">Data modules</p>
+          <div id="dots" class="tiles tiles-4" role="radiogroup" data-i18n-aria="dots.aria"></div>
+          <div class="two-col">
+            <div>
+              <p class="label" data-i18n="eyeOuter.label">Corner square</p>
+              <div id="eye-outer" class="tiles tiles-4 tiles-sm" role="radiogroup" data-i18n-aria="eyeOuter.aria"></div>
+            </div>
+            <div>
+              <p class="label" data-i18n="eyeInner.label">Corner dot</p>
+              <div id="eye-inner" class="tiles tiles-4 tiles-sm" role="radiogroup" data-i18n-aria="eyeInner.aria"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2><span class="step">3</span><span data-i18n="section.colors">Colors</span></h2></div>
+          <p class="label" data-i18n="fill.label">Pattern fill</p>
+          <div id="fill-mode" class="segmented" role="radiogroup" data-i18n-aria="fill.aria"></div>
+          <div class="color-row">
+            <div id="fg-c1"></div>
+            <div id="fg-c2" class="when-gradient"></div>
+          </div>
+          <div id="angle-row" class="slider-row when-linear">
+            <label for="angle" data-i18n="color.angle">Gradient angle</label>
+            <input id="angle" type="range" min="0" max="360" step="15" />
+            <output id="angle-out"></output>
+          </div>
+          <div class="color-row">
+            <div id="bg-color"></div>
+            <label class="check"><input id="bg-transparent" type="checkbox" /> <span data-i18n="color.transparent">Transparent background</span></label>
+          </div>
+          <label class="check"><input id="eye-custom" type="checkbox" /> <span data-i18n="color.eyeCustom">Custom corner colors</span></label>
+          <div class="color-row when-eye-custom">
+            <div id="eye-outer-color"></div>
+            <div id="eye-inner-color"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2><span class="step">4</span><span data-i18n="section.caption">Caption</span></h2></div>
+          <div class="caption-field">
+            <label class="sr-only" for="caption" data-i18n="caption.label">Caption</label>
+            <input id="caption" type="text" maxlength="60" placeholder="e.g. Scan to sign up" />
+            <span id="caption-count" class="counter">0/60</span>
+          </div>
+          <div class="two-col">
+            <div>
+              <p class="label" data-i18n="caption.position">Position</p>
+              <div id="caption-pos" class="segmented" role="radiogroup" data-i18n-aria="caption.position.aria"></div>
+            </div>
+            <div>
+              <p class="label" data-i18n="caption.weight">Weight</p>
+              <div id="caption-bold" class="segmented" role="radiogroup" data-i18n-aria="caption.weight.aria"></div>
+            </div>
+          </div>
+          <p class="label" data-i18n="caption.font">Font</p>
+          <div id="caption-font" class="segmented" role="radiogroup" data-i18n-aria="caption.font.aria"></div>
+          <div class="slider-row">
+            <label for="caption-size" data-i18n="caption.size">Font size</label>
+            <input id="caption-size" type="range" />
+            <output id="caption-size-out"></output>
+          </div>
+          <div id="caption-color"></div>
+          <p id="caption-color-note" class="hint" data-i18n="caption.colorNote">Inside a labeled frame, the text switches to black or white automatically so it stays readable.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2><span class="step">5</span><span data-i18n="section.frame">Frame</span></h2></div>
+          <div id="frame" class="tiles tiles-5" role="radiogroup" data-i18n-aria="frame.aria"></div>
+          <div class="when-frame">
+            <div id="frame-color"></div>
+            <div class="slider-row">
+              <label for="frame-thickness" data-i18n="frame.thickness">Border width</label>
+              <input id="frame-thickness" type="range" />
+              <output id="frame-thickness-out"></output>
+            </div>
+          </div>
+        </div>
+
+        <button id="reset" class="btn btn-ghost reset" type="button" data-i18n="reset">Reset design</button>
+      </section>
+
+      <aside class="preview-col" data-i18n-aria="preview.aria" aria-label="Preview and download">
+        <div class="preview-card">
+          <div id="stage" class="stage">
+            <div id="preview" class="preview"></div>
+            <div id="empty" class="empty">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v7H3zM5 5v3h3V5zM14 3h7v7h-7zm2 2v3h3V5zM3 14h7v7H3zm2 2v3h3v-3zM14 14h3v3h-3zM18 18h3v3h-3zM18 14h3v2h-3zM14 18h2v3h-2z" /></svg>
+              <p id="empty-text">Paste a link to get started</p>
+            </div>
+          </div>
+          <p id="encoded" class="encoded"></p>
+          <ul id="warnings" class="warnings" aria-live="polite"></ul>
+          <div class="export">
+            <div class="export-size">
+              <label for="png-size" data-i18n="export.size">PNG size</label>
+              <select id="png-size"></select>
+            </div>
+            <button id="dl-png" class="btn btn-primary" type="button" data-i18n="export.png">Download PNG</button>
+            <button id="dl-svg" class="btn" type="button" data-i18n="export.svg">Download SVG</button>
+            <button id="copy" class="btn" type="button" data-i18n="export.copy">Copy image</button>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

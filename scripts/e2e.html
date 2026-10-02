@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>QR Studio — kiểm thử đầu-cuối</title>
+    <style>
+      body { font: 14px/1.5 system-ui, sans-serif; margin: 24px; color: #1b1f2a; }
+      table { border-collapse: collapse; margin-top: 12px; }
+      td, th { border: 1px solid #ddd; padding: 4px 8px; text-align: left; font-size: 13px; }
+      .bad { background: #fdecec; }
+      img { width: 120px; vertical-align: middle; }
+    </style>
+  </head>
+  <body>
+    <h1>Kiểm thử đầu-cuối: xuất PNG trong trình duyệt → ZXing giải mã lại</h1>
+    <p>Mở bằng <code>npm run dev</code> rồi vào <code>/scripts/e2e.html</code>. Trang này dùng đúng hàm xuất của app (có nhúng phông) và in ra chuỗi đọc được.</p>
+    <p id="summary">Đang chạy…</p>
+    <table id="t"><tr><th>#</th><th>Thiết kế</th><th>Cỡ</th><th>Đọc được</th><th>Ảnh</th></tr></table>
+    <script type="module">
+      import { prepareZXingModule, readBarcodes } from 'zxing-wasm/reader';
+      import { pngBlob } from '/src/export.ts';
+      import { defaultDesign } from '/src/design.ts';
+      import { validateUrl } from '/src/url.ts';
+
+      prepareZXingModule({ overrides: { locateFile: (p) => '/node_modules/zxing-wasm/dist/reader/' + p }, fireImmediately: true });
+
+      const input = new URLSearchParams(location.search).get('url') || 'https://workshop.edtechcorner.com/workshops/ung-dung-ai-tim-kiem-sang-loc-tai-lieu';
+      const v = validateUrl(input);
+      if (v.status !== 'ok') throw new Error('URL không hợp lệ: ' + v.status);
+      const url = v.encoded;
+
+      const dotsList = ['square', 'dots', 'rounded', 'connected', 'classy', 'diamond', 'vlines', 'hlines'];
+      const frames = ['none', 'square', 'rounded', 'banner', 'bubble'];
+      const outers = ['square', 'rounded', 'circle', 'leaf'];
+      const inners = ['square', 'circle', 'rounded', 'diamond'];
+      const t = document.getElementById('t');
+      let i = 0, ok = 0, total = 0;
+      for (const dots of dotsList)
+        for (const frame of frames) {
+          const d = defaultDesign();
+          d.dots = dots;
+          d.eyeOuter = outers[i % 4];
+          d.eyeInner = inners[(i + 1) % 4];
+          d.frame = { type: frame, color: '#1e3a8a', thickness: 8 };
+          d.caption = { ...d.caption, text: frame === 'none' || frame === 'square' ? 'Quét để đăng ký khoá học' : '', font: ['sans', 'serif', 'mono', 'rounded'][i % 4], position: i % 2 ? 'top' : 'bottom' };
+          if (i % 3 === 0) d.fg = { mode: 'linear', c1: '#1e3a8a', c2: '#7c3aed', angle: 45 };
+          if (i % 3 === 1) d.fg = { mode: 'radial', c1: '#0f766e', c2: '#1e3a8a', angle: 0 };
+          i++;
+          for (const size of [512, 1024]) {
+            total++;
+            const png = await pngBlob(d, url, size);
+            const r = await readBarcodes(png, { formats: ['QRCode'], tryHarder: true });
+            const got = r[0]?.text ?? null;
+            if (got === url) ok++;
+            const tr = document.createElement('tr');
+            if (got !== url) tr.className = 'bad';
+            tr.innerHTML = `<td>${total}</td><td>${dots} · khung ${frame} · mắt ${d.eyeOuter}/${d.eyeInner} · tô ${d.fg.mode}</td><td>${size}</td><td></td><td>${size === 512 ? `<img src="${URL.createObjectURL(png)}">` : ''}</td>`;
+            tr.children[3].textContent = got === null ? '(không đọc được)' : got === url ? 'đúng: ' + got : 'SAI: ' + got;
+            t.append(tr);
+          }
+        }
+      document.getElementById('summary').textContent = `Mã hoá: ${url} — ZXing đọc đúng ${ok}/${total} ảnh PNG xuất từ trình duyệt.`;
+      window.__e2e = { ok, total };
+    </script>
+  </body>
+</html>
