@@ -130,3 +130,64 @@ for (const [i, c] of cases.entries()) {
 }
 console.log(`\n  ZXing@640: đúng ${ok}/${cases.length} · ZXing@260: đúng ${okSmall}/${cases.length} · jsQR: đúng ${okJs}/${cases.length}`);
 if (fails.length) console.log('  ZXing@640 không đọc được: ' + fails.join(' | '));
+
+// ---------- 3. Logo giữa QR (UC-24/25, KT-12/13, LO-13/18) ----------
+// Logo mẫu: hình khối màu đậm kín ~ toàn khung (ca khó nhất cho máy quét), dạng PNG lẫn SVG.
+const logoSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="120" height="80"><rect width="120" height="80" rx="14" fill="#e11d48"/><circle cx="40" cy="40" r="22" fill="#111827"/><rect x="70" y="18" width="34" height="44" rx="6" fill="#fde047"/></svg>`;
+const logoPngData = 'data:image/png;base64,' + new Resvg(logoSvg, { fitTo: { mode: 'width', value: 240 } }).render().asPng().toString('base64');
+const logoSvgData = 'data:image/svg+xml;base64,' + Buffer.from(logoSvg).toString('base64');
+const URL_VLONG = validateUrl('https://example.com/form?' + Array.from({ length: 40 }, (_, k) => `field${k}=value${k}`).join('&'));
+if (URL_VLONG.status !== 'ok') throw new Error('URL rất dài không hợp lệ');
+
+type LogoCase = { name: string; d: Design; url: string };
+const logoCases: LogoCase[] = [];
+for (const [urlName, url] of [['ngắn', URL_SHORT.encoded], ['dài', URL_LONG.encoded], [`rất dài ${URL_VLONG.encoded.length}`, URL_VLONG.encoded]] as const)
+  for (const plate of ['none', 'rounded', 'circle'] as const)
+    for (const size of [0.1, 0.2, 0.25, 0.3])
+      for (const [dots, src] of [['square', logoPngData], ['dots', logoSvgData]] as const)
+        logoCases.push({
+          name: `[${urlName}] nền=${plate} cỡ=${Math.round(size * 100)}% hoạ tiết=${dots} ảnh=${src.startsWith('data:image/png') ? 'png' : 'svg'}`,
+          url,
+          d: { ...base, dots, eyeOuter: 'rounded', eyeInner: 'circle', logo: { src, width: 120, height: 80, size, plate } },
+        });
+
+console.log(`\n=== 3. Logo giữa QR → giải mã lại (${logoCases.length} tổ hợp; có logo thì mức sửa lỗi H) ===`);
+let lOk = 0, lSmall = 0;
+const lFails: string[] = [];
+for (const [i, c] of logoCases.entries()) {
+  const { svg } = renderSvg(c.d, c.url);
+  const big = await zxing(svg, 640);
+  const small = await zxing(svg, 260);
+  if (big === c.url) lOk++; else lFails.push(c.name);
+  if (small === c.url) lSmall++;
+  const warns = scanWarnings(c.d, { status: 'ok', encoded: c.url, autoPrefixed: false, dense: c.url.length >= 300, host: '' }).map((w) => w.id);
+  console.log(`  ${String(i + 1).padStart(3)}. ${c.name.padEnd(62)} | ${mark(big, c.url).padEnd(9)} | ${mark(small, c.url).padEnd(9)} | ${warns.join(',')}`);
+  if (savePng && i % 6 === 0) writeFileSync(new URL(`./out/logo-${String(i + 1).padStart(3, '0')}.png`, import.meta.url), pngOf(svg));
+}
+console.log(`\n  ZXing@640: đúng ${lOk}/${logoCases.length} · ZXing@260: đúng ${lSmall}/${logoCases.length}`);
+if (lFails.length) console.log('  ZXing@640 không đọc được: ' + lFails.join(' | '));
+
+// ---------- 4. KT-13: vùng logo không bao giờ chạm 3 mắt QR / vạch định thời ----------
+{
+  const { logoGeometry } = await import('../src/logo');
+  const { buildMatrix, isEyeModule } = await import('../src/qr');
+  let checked = 0, touched = 0, shrunk = 0, minN = Infinity;
+  for (let len = 1; len <= 1000; len += 7) {
+    const url = 'https://a.vn/' + 'x'.repeat(len);
+    const n = buildMatrix(url, 'H').size;
+    minN = Math.min(minN, n);
+    for (const plate of ['none', 'rounded', 'circle'] as const)
+      for (const [w, h] of [[1, 1], [3, 1], [1, 3]]) {
+        const g = logoGeometry(n, { src: '', width: w, height: h, size: 0.3, plate });
+        checked++;
+        if (g.size < 0.3 - 1e-9) shrunk++;
+        for (let r = 0; r < n; r++)
+          for (let c = 0; c < n; c++)
+            if (g.skip(r, c) && (isEyeModule(n, r, c) || r === 6 || c === 6)) touched++;
+        const { x, y, w: iw, h: ih } = g.image;
+        if (x < 8 || y < 8 || x + iw > n - 8 || y + ih > n - 8) touched++;
+      }
+  }
+  console.log(`\n=== 4. KT-13: ${checked} tổ hợp (độ dài link 14–1013 ký tự × 3 kiểu nền × 3 tỉ lệ ảnh, cỡ 30%) ===`);
+  console.log(`  QR nhỏ nhất có logo: ${minN}×${minN} ô · số lần vùng logo chạm mắt/vạch định thời: ${touched} · số lần logo tự thu nhỏ: ${shrunk}`);
+}

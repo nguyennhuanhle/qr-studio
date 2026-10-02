@@ -30,10 +30,10 @@ function diamond(x: number, y: number, s: number): string {
   return `M${n3(x + h)} ${n3(y)}L${n3(x + s)} ${n3(y + h)}L${n3(x + h)} ${n3(y + s)}L${n3(x)} ${n3(y + h)}Z`;
 }
 
-/** Toàn bộ ô dữ liệu (trừ 3 mắt) gộp thành 1 path. */
-export function dotsPath(m: Matrix, style: DotStyle): string {
+/** Toàn bộ ô dữ liệu (trừ 3 mắt và các ô `skip`, vd vùng dưới logo) gộp thành 1 path. */
+export function dotsPath(m: Matrix, style: DotStyle, skip: (r: number, c: number) => boolean = () => false): string {
   const n = m.size;
-  const on = (r: number, c: number) => m.isDark(r, c) && !isEyeModule(n, r, c);
+  const on = (r: number, c: number) => m.isDark(r, c) && !isEyeModule(n, r, c) && !skip(r, c);
   const parts: string[] = [];
 
   if (style === 'vlines' || style === 'hlines') {

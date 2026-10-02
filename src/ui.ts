@@ -1,12 +1,13 @@
 // Bảng điều khiển ↔ state ↔ xem trước.
 import {
-  CAPTION_MAX, CAPTION_SIZE, DEFAULT_LABEL, defaultDesign, FONT_FAMILIES, fontStack, FRAME_THICKNESS, PNG_SIZES, sanitizeCaption,
-  type Design, type DotStyle, type EyeInnerStyle, type EyeOuterStyle, type FillMode, type FontKey, type FrameType, type PngSize,
+  CAPTION_MAX, CAPTION_SIZE, DEFAULT_LABEL, defaultDesign, FONT_FAMILIES, fontStack, FRAME_THICKNESS, LOGO_SIZE, PNG_SIZES, sanitizeCaption,
+  type Design, type DotStyle, type EyeInnerStyle, type EyeOuterStyle, type FillMode, type FontKey, type FrameType, type LogoPlate, type PngSize,
 } from './design';
 import { scanWarnings } from './checks';
 import { copyPng, download, ExportError, fileBase, pngBlob, svgBlob } from './export';
 import { browserMeasure, ensureFontLoaded } from './fonts';
 import { applyStatic, getLang, LANGS, setLang, t, type Key } from './i18n';
+import { readLogoFile } from './logo';
 import { renderSvg } from './render';
 import { dotsPath, eyeInnerPath, eyeOuterPath } from './shapes';
 import { validateUrl, type UrlResult } from './url';
@@ -211,6 +212,72 @@ function frameIcon(t: FrameType): string {
   }
 }
 
+// ---------- logo (UC-24→26, LO-15→17) ----------
+function initLogo() {
+  const file = $<HTMLInputElement>('logo-file');
+  const msg = $('logo-msg');
+  file.addEventListener('change', async () => {
+    const f = file.files?.[0];
+    file.value = ''; // để chọn lại đúng file đó vẫn kích hoạt sự kiện
+    if (!f) return;
+    const res = await readLogoFile(f);
+    if (!res.ok) {
+      msg.textContent = t(`logo.error.${res.error}`); // giữ nguyên logo cũ
+      msg.className = 'field-msg is-error';
+      return;
+    }
+    msg.textContent = '';
+    design.logo = {
+      src: res.src,
+      width: res.width,
+      height: res.height,
+      size: design.logo?.size ?? LOGO_SIZE.default,
+      plate: design.logo?.plate ?? 'none',
+    };
+    schedule();
+  });
+  $('logo-remove').addEventListener('click', () => {
+    design.logo = null;
+    msg.textContent = '';
+    schedule();
+  });
+  slider(
+    'logo-size',
+    { min: Math.round(LOGO_SIZE.min * 100), max: Math.round(LOGO_SIZE.max * 100) },
+    () => Math.round((design.logo?.size ?? LOGO_SIZE.default) * 100),
+    (v) => {
+      if (design.logo) design.logo.size = v / 100;
+    },
+    (v) => `${v}%`,
+  );
+  const plates: LogoPlate[] = ['none', 'rounded', 'circle'];
+  segmented(
+    $('logo-plate'),
+    plates.map((value) => ({ value, label: () => t(`logo.plate.${value}`) })),
+    () => design.logo?.plate ?? 'none',
+    (v) => {
+      if (design.logo) design.logo.plate = v;
+    },
+  );
+  let shown = '';
+  syncers.push(() => {
+    document.body.classList.toggle('has-logo', design.logo !== null);
+    $('logo-choose').textContent = t(design.logo ? 'logo.replace' : 'logo.choose');
+    const src = design.logo?.src ?? '';
+    if (src !== shown) {
+      const thumb = $('logo-thumb');
+      thumb.innerHTML = '';
+      if (src) {
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = '';
+        thumb.append(img);
+      }
+      shown = src;
+    }
+  });
+}
+
 // ---------- khởi tạo ----------
 export function initUi() {
   initUrl();
@@ -250,6 +317,8 @@ export function initUi() {
   });
   colorField($('eye-outer-color'), 'color.eyeOuter', () => design.eyeOuterColor ?? design.fg.c1, (v) => (design.eyeOuterColor = v));
   colorField($('eye-inner-color'), 'color.eyeInner', () => design.eyeInnerColor ?? design.fg.c1, (v) => (design.eyeInnerColor = v));
+
+  initLogo();
 
   // Caption
   const caption = $<HTMLInputElement>('caption');
@@ -314,8 +383,9 @@ export function initUi() {
   $('copy').addEventListener('click', () => runExport('copy'));
 
   $('reset').addEventListener('click', () => {
-    design = defaultDesign(); // UC-17: giữ link, xoá tuỳ biến
+    design = defaultDesign(); // UC-17: giữ link, xoá tuỳ biến (UC-26: kể cả logo)
     caption.value = '';
+    $('logo-msg').textContent = '';
     schedule();
     toast(t('reset.done'));
   });

@@ -198,6 +198,22 @@ body.is-busy .export .btn { cursor: progress; }
 .toast.is-show { opacity: 1; transform: translate(-50%, 0); }
 .toast.is-error { background: var(--error); }
 
+/* ---------- logo ---------- */
+.logo-pick { display: flex; align-items: center; gap: 14px; }
+.logo-thumb {
+  flex: none; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 12px; border: 1.5px dashed var(--line-2);
+  background-color: #fff; background-image: conic-gradient(#f0ede7 25%, transparent 0 50%, #f0ede7 0 75%, transparent 0); background-size: 12px 12px;
+}
+.logo-thumb img { max-width: 52px; max-height: 52px; }
+.logo-actions { display: grid; gap: 6px; min-width: 0; }
+.logo-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.logo-buttons .btn { padding: 8px 12px; font-size: 13px; }
+.logo-pick .hint { margin: 0; }
+.logo-buttons label:focus-within { box-shadow: 0 0 0 4px var(--accent-soft); border-color: var(--accent); }
+.when-logo, .when-logo-inline { display: none; }
+body.has-logo .when-logo { display: block; }
+body.has-logo .when-logo-inline { display: inline-block; }
+
 /* ---------- footer ---------- */
 .site-footer { max-width: 1240px; margin: 0 auto; padding: 8px 24px 32px; text-align: center; color: var(--ink-3); font-size: 12.5px; }
 .site-footer a { color: var(--ink-2); font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--line-2); }

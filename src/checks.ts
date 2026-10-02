@@ -1,12 +1,12 @@
 // Cảnh báo khả năng quét (LO-04, LO-05, LO-06, LO-07, LO-12).
-import type { Design } from './design';
+import { LOGO_SIZE, type Design } from './design';
 import type { UrlResult } from './url';
 
 export const MIN_CONTRAST = 4;
 
 /** Câu chữ do giao diện dịch theo `id` (xem i18n.ts, khoá warn.*). */
 export interface Warning {
-  id: 'dense' | 'contrast' | 'inverted' | 'transparent';
+  id: 'dense' | 'contrast' | 'inverted' | 'transparent' | 'logoEc' | 'logoBig';
   level: 'warn' | 'info';
   params?: Record<string, string | number>;
 }
@@ -49,6 +49,11 @@ export function scanWarnings(d: Design, url: UrlResult): Warning[] {
   const out: Warning[] = [];
   if (url.status === 'ok' && url.dense) {
     out.push({ id: 'dense', level: 'warn' });
+  }
+  // LO-18
+  if (d.logo) {
+    out.push({ id: 'logoEc', level: 'info' });
+    if (d.logo.size > LOGO_SIZE.warnAbove) out.push({ id: 'logoBig', level: 'warn' });
   }
   if (d.bg.transparent) {
     out.push({ id: 'transparent', level: 'info' });

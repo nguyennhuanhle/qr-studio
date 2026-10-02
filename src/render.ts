@@ -2,6 +2,7 @@
 import { fontStack, type Design } from './design';
 import { readableOn } from './checks';
 import { approxMeasure, computeLayout, QUIET_ZONE, type Measure, type Rect } from './layout';
+import { logoGeometry, type LogoGeometry } from './logo';
 import { buildMatrix } from './qr';
 import { dotsPath, eyeInnerPath, eyeOrigins, eyeOuterPath, n3, roundedRect } from './shapes';
 
@@ -25,8 +26,9 @@ const rectPath = (r: Rect) => roundedRect(r.x, r.y, r.w, r.h, r.r);
 /** KT-07: `encoded` được mã hoá nguyên văn, không thêm gì. */
 export function renderSvg(d: Design, encoded: string, opts: RenderOptions = {}): Rendered {
   const id = opts.idPrefix ?? 'qr';
-  const matrix = buildMatrix(encoded);
+  const matrix = buildMatrix(encoded, d.logo ? 'H' : 'Q'); // LO-13
   const n = matrix.size;
+  const logo = d.logo ? logoGeometry(n, d.logo) : null;
   const L = computeLayout(d, opts.measure ?? approxMeasure);
   const m = L.qr.size / (n + 2 * QUIET_ZONE);
 
@@ -62,9 +64,10 @@ export function renderSvg(d: Design, encoded: string, opts: RenderOptions = {}):
   const eyes = eyeOrigins(n);
   body.push(
     `<g transform="translate(${n3(L.qr.x + off)} ${n3(L.qr.y + off)}) scale(${n3(m)})">` +
-      `<path d="${dotsPath(matrix, d.dots)}" fill="${fgPaint}"/>` +
+      `<path d="${dotsPath(matrix, d.dots, logo?.skip)}" fill="${fgPaint}"/>` +
       `<path d="${eyes.map((e) => eyeOuterPath(e.x, e.y, d.eyeOuter, e.corner)).join('')}" fill="${d.eyeOuterColor ?? fgPaint}" fill-rule="evenodd"/>` +
       `<path d="${eyes.map((e) => eyeInnerPath(e.x, e.y, d.eyeInner)).join('')}" fill="${d.eyeInnerColor ?? fgPaint}"/>` +
+      (logo && d.logo ? logoMarkup(logo, d.logo.src, d.bg) : '') +
       `</g>`,
   );
 
@@ -78,9 +81,17 @@ export function renderSvg(d: Design, encoded: string, opts: RenderOptions = {}):
   }
 
   const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n3(L.width)} ${n3(L.height)}" width="${n3(L.width)}" height="${n3(L.height)}">` +
+    `<svg xmlns="http://www.w3.org/2000/svg"${logo ? ' xmlns:xlink="http://www.w3.org/1999/xlink"' : ''} viewBox="0 0 ${n3(L.width)} ${n3(L.height)}" width="${n3(L.width)}" height="${n3(L.height)}">` +
     (defs.length ? `<defs>${defs.join('')}</defs>` : '') +
     body.join('') +
     `</svg>`;
   return { svg, width: L.width, height: L.height };
+}
+
+/** UC-24/25/27: nền (nếu có) + ảnh logo nhúng thẳng dạng data URL, nên SVG xuất ra tự chứa logo. */
+function logoMarkup(g: LogoGeometry, src: string, bg: Design['bg']): string {
+  // Nền trong suốt thì không tô nền logo — vùng trống đã được chừa sẵn.
+  const plate = g.platePath && !bg.transparent ? `<path d="${g.platePath}" fill="${bg.color}"/>` : '';
+  const { x, y, w, h } = g.image;
+  return plate + `<image x="${n3(x)}" y="${n3(y)}" width="${n3(w)}" height="${n3(h)}" preserveAspectRatio="xMidYMid meet" xlink:href="${esc(src)}"/>`;
 }

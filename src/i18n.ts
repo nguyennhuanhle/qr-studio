@@ -107,6 +107,23 @@ const en = {
   'warn.inverted': 'Pattern is lighter than the background (inverted QR) — many scanners can’t read it.',
 
   'footer.developedBy': 'Developed by',
+
+  'section.logo': 'Logo',
+  'logo.choose': 'Choose image…',
+  'logo.replace': 'Replace image…',
+  'logo.remove': 'Remove',
+  'logo.hint': 'PNG, JPG, SVG or WebP, up to 2 MB. The image stays on your device.',
+  'logo.size': 'Logo size',
+  'logo.plate': 'Behind the logo',
+  'logo.plate.aria': 'Logo background',
+  'logo.plate.none': 'Nothing',
+  'logo.plate.rounded': 'Rounded square',
+  'logo.plate.circle': 'Circle',
+  'logo.error.type': 'Only PNG, JPG, SVG or WebP images are supported.',
+  'logo.error.tooBig': 'That image is over 2 MB — please use a smaller file.',
+  'logo.error.unreadable': "This image can't be read. Try another file.",
+  'warn.logoEc': 'Logo added: error correction raised to H (~30%) so the code still scans.',
+  'warn.logoBig': 'Large logo — scan-test the code before printing.',
 };
 
 export type Key = keyof typeof en;
@@ -214,6 +231,23 @@ const vi: Record<Key, string> = {
   'warn.inverted': 'Hoạ tiết sáng hơn nền (QR đảo màu) — nhiều máy quét không đọc được.',
 
   'footer.developedBy': 'Phát triển bởi',
+
+  'section.logo': 'Logo',
+  'logo.choose': 'Chọn ảnh…',
+  'logo.replace': 'Đổi ảnh…',
+  'logo.remove': 'Bỏ logo',
+  'logo.hint': 'PNG, JPG, SVG hoặc WebP, tối đa 2 MB. Ảnh chỉ nằm trên máy bạn.',
+  'logo.size': 'Cỡ logo',
+  'logo.plate': 'Nền sau logo',
+  'logo.plate.aria': 'Nền sau logo',
+  'logo.plate.none': 'Không nền',
+  'logo.plate.rounded': 'Vuông bo góc',
+  'logo.plate.circle': 'Tròn',
+  'logo.error.type': 'Chỉ nhận ảnh PNG, JPG, SVG hoặc WebP.',
+  'logo.error.tooBig': 'Ảnh lớn hơn 2 MB — hãy dùng ảnh nhỏ hơn.',
+  'logo.error.unreadable': 'Không đọc được ảnh này. Hãy thử file khác.',
+  'warn.logoEc': 'Đã có logo: tự nâng mức sửa lỗi lên H (~30%) để QR vẫn quét được.',
+  'warn.logoBig': 'Logo lớn — nên quét thử trước khi in.',
 };
 
 const DICT: Record<Lang, Record<Key, string>> = { en, vi };

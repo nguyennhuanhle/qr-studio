@@ -5,9 +5,9 @@ export interface Matrix {
   isDark(row: number, col: number): boolean;
 }
 
-/** LO-13: mức sửa lỗi Q (~25%) cố định. Chuỗi vào luôn là ASCII (xem url.ts). */
-export function buildMatrix(text: string): Matrix {
-  const qr = qrcode(0, 'Q');
+/** LO-13: mức sửa lỗi Q (~25%), hoặc H (~30%) khi có logo. Chuỗi vào luôn là ASCII (xem url.ts). */
+export function buildMatrix(text: string, ec: 'Q' | 'H' = 'Q'): Matrix {
+  const qr = qrcode(0, ec);
   qr.addData(text, 'Byte');
   qr.make();
   const size = qr.getModuleCount();

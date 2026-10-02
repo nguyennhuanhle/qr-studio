@@ -24,6 +24,8 @@ const designs = [
     d.bg = { color: '#f0fdf4', transparent: false };
     d.frame = { type: 'banner', color: '#0f766e', thickness: 6 };
     d.caption = { ...d.caption, position: 'top' };
+    const mark = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#0f766e"/><path d="M30 50h40M50 30v40" stroke="#fff" stroke-width="12" stroke-linecap="round"/></svg>';
+    d.logo = { src: 'data:image/svg+xml;base64,' + Buffer.from(mark).toString('base64'), width: 100, height: 100, size: 0.22, plate: 'circle' };
   }),
   mk((d) => {
     d.dots = 'classy'; d.eyeOuter = 'leaf'; d.eyeInner = 'rounded';
@@ -54,7 +56,7 @@ const parts = rendered.map((r) => {
   return g;
 });
 const W = x;
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H + 2 * gap}" width="${W}" height="${H + 2 * gap}"><rect width="100%" height="100%" fill="#f4f2ee"/>${parts.join('')}</svg>`;
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${W} ${H + 2 * gap}" width="${W}" height="${H + 2 * gap}"><rect width="100%" height="100%" fill="#f4f2ee"/>${parts.join('')}</svg>`;
 const png = new Resvg(svg, { fitTo: { mode: 'width', value: 1600 }, font: { loadSystemFonts: true } }).render().asPng();
 mkdirSync(new URL('../docs/', import.meta.url), { recursive: true });
 writeFileSync(new URL('../docs/samples.png', import.meta.url), png);

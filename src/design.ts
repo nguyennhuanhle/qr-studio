@@ -7,6 +7,18 @@ export type FillMode = 'solid' | 'linear' | 'radial';
 export type FontKey = 'sans' | 'serif' | 'mono' | 'rounded';
 export type FrameType = 'none' | 'square' | 'rounded' | 'banner' | 'bubble';
 export type PngSize = 512 | 1024 | 2048 | 4096;
+export type LogoPlate = 'none' | 'rounded' | 'circle';
+
+/** UC-24/25. `src` là data URL đọc ngay trong trình duyệt (KT-11); không lưu (KT-14). */
+export interface Logo {
+  src: string;
+  /** Kích thước gốc của ảnh, chỉ dùng để giữ đúng tỉ lệ. */
+  width: number;
+  height: number;
+  /** Cạnh dài của logo / bề rộng vùng mã, trong [LOGO_SIZE.min, LOGO_SIZE.max]. */
+  size: number;
+  plate: LogoPlate;
+}
 
 export interface Design {
   dots: DotStyle;
@@ -19,6 +31,7 @@ export interface Design {
   eyeInnerColor: string | null;
   caption: { text: string; position: 'top' | 'bottom'; font: FontKey; size: number; bold: boolean; color: string };
   frame: { type: FrameType; color: string; thickness: number };
+  logo: Logo | null;
   pngSize: PngSize;
 }
 
@@ -27,6 +40,9 @@ export const CAPTION_MAX = 60; // KT-04
 export const CAPTION_SIZE = { min: 14, max: 40 };
 export const FRAME_THICKNESS = { min: 2, max: 16 };
 export const DEFAULT_LABEL = 'SCAN ME'; // LO-09
+export const LOGO_SIZE = { min: 0.1, max: 0.3, default: 0.2, warnAbove: 0.25 }; // UC-25, KT-12, LO-18
+export const LOGO_MAX_BYTES = 2 * 1024 * 1024; // LO-16
+export const LOGO_TYPES = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp']; // LO-15
 
 export function defaultDesign(): Design {
   return {
@@ -39,6 +55,7 @@ export function defaultDesign(): Design {
     eyeInnerColor: null,
     caption: { text: '', position: 'bottom', font: 'sans', size: 22, bold: true, color: '#111827' },
     frame: { type: 'none', color: '#111827', thickness: 6 },
+    logo: null,
     pngSize: 1024,
   };
 }

@@ -59,6 +59,38 @@
             t.append(tr);
           }
         }
+      // Logo: PNG vẽ bằng canvas + SVG chỉ có viewBox, các cỡ 10–30%, 3 kiểu nền.
+      const cv = document.createElement('canvas');
+      cv.width = 300; cv.height = 200;
+      const g = cv.getContext('2d');
+      g.fillStyle = '#e11d48'; g.fillRect(0, 0, 300, 200);
+      g.fillStyle = '#111827'; g.beginPath(); g.arc(100, 100, 60, 0, 7); g.fill();
+      g.fillStyle = '#fde047'; g.fillRect(190, 50, 70, 100);
+      const pngLogo = cv.toDataURL('image/png');
+      const svgLogo = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#2563eb"/><path d="M30 50h40M50 30v40" stroke="#fff" stroke-width="12"/></svg>');
+      let li = 0;
+      for (const plate of ['none', 'rounded', 'circle'])
+        for (const size of [0.1, 0.2, 0.25, 0.3])
+          for (const [logoSrc, w, h] of [[pngLogo, 300, 200], [svgLogo, 100, 100]]) {
+            const d = defaultDesign();
+            d.dots = dotsList[li % dotsList.length];
+            d.eyeOuter = outers[li % 4];
+            d.eyeInner = inners[(li + 1) % 4];
+            d.frame = { type: frames[li % frames.length], color: '#1e3a8a', thickness: 8 };
+            if (li % 2) d.fg = { mode: 'linear', c1: '#1e3a8a', c2: '#7c3aed', angle: 45 };
+            d.logo = { src: logoSrc, width: w, height: h, size, plate };
+            li++;
+            total++;
+            const png = await pngBlob(d, url, 1024);
+            const r = await readBarcodes(png, { formats: ['QRCode'], tryHarder: true });
+            const got = r[0]?.text ?? null;
+            if (got === url) ok++;
+            const tr = document.createElement('tr');
+            if (got !== url) tr.className = 'bad';
+            tr.innerHTML = `<td>${total}</td><td>LOGO ${logoSrc.startsWith('data:image/png') ? 'png' : 'svg'} · cỡ ${Math.round(size * 100)}% · nền ${plate} · ${d.dots} · khung ${d.frame.type}</td><td>1024</td><td></td><td><img src="${URL.createObjectURL(png)}"></td>`;
+            tr.children[3].textContent = got === null ? '(không đọc được)' : got === url ? 'đúng: ' + got : 'SAI: ' + got;
+            t.append(tr);
+          }
       document.getElementById('summary').textContent = `Mã hoá: ${url} — ZXing đọc đúng ${ok}/${total} ảnh PNG xuất từ trình duyệt.`;
       window.__e2e = { ok, total };
     </script>

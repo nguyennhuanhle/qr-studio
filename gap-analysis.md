@@ -1,6 +1,6 @@
-# Gap Analysis — 2026-10-02 (v1.2: giao diện tiếng Anh + footer tác giả)
+# Gap Analysis — 2026-10-02 (v1.3: giao diện tiếng Anh, footer tác giả, logo giữa QR)
 
-Đối chiếu code hiện tại với `use-cases.md` v1.2.
+Đối chiếu code hiện tại với `use-cases.md` v1.3.
 Mục v1.0 bên dưới được chạy lại sau khi đổi sang i18n: `npm run verify` vẫn 91/91, các chuỗi lỗi/cảnh báo hiển thị đúng ở cả EN và VI. Chỉ ghi sự thật đã kiểm được.
 
 **Bằng chứng đã chạy:**
@@ -44,6 +44,17 @@ Mục v1.0 bên dưới được chạy lại sau khi đổi sang i18n: `npm run
 |---|---|---|
 | UC-23 Footer "Developed by Mr Le Nguyen Nhu Anh © năm", link edtechcorner.com, năm tự cập nhật | DONE | EN: "Developed by Mr Le Nguyen Nhu Anh © 2026", VI: "Phát triển bởi …"; link mở tab mới (`rel=noopener`); giả lập đồng hồ năm 2031 → footer hiện 2031 |
 
+## Logo (v1.3)
+
+Bằng chứng: `npm run verify` phần 3 — 72 tổ hợp (link ngắn / dài / rất dài 644 ký tự × nền không/vuông bo/tròn × cỡ 10/20/25/30% × logo PNG/SVG khối màu đặc): ZXing đọc đúng **72/72** ở 640 px và **72/72** ở 260 px. `/scripts/e2e.html`: 24 PNG có logo xuất qua đường xuất thật của trình duyệt → đúng **24/24** (tổng trang 104/104). Đo điểm giữa PNG xuất ra: đúng màu logo (rgb(225,29,72) / rgb(37,99,235)), tức logo thật sự nằm trong file.
+
+| Use Case | Status | Ghi chú |
+|---|---|---|
+| UC-24 Chọn ảnh logo PNG/JPG/SVG/WebP, hiện ngay giữa QR | DONE | Thử bằng ô chọn file thật với PNG (canvas) và SVG chỉ có viewBox; có ảnh thu nhỏ, nút đổi thành "Replace image…" |
+| UC-25 Cỡ 10–30% (mặc định 20%) + nền không/vuông bo/tròn | DONE | Đổi ảnh khác vẫn giữ cỡ và kiểu nền đã chọn |
+| UC-26 Bỏ logo; "Về mặc định" cũng bỏ | DONE | Bỏ logo → hết ảnh, hết 2 cảnh báo logo |
+| UC-27 PNG/SVG xuất ra có logo, SVG tự chứa ảnh | DONE | SVG có `<image xlink:href="data:image/…">`; PNG đo đúng màu logo ở tâm. Nút tải vẫn chưa bấm thử (như UC-13/14) |
+
 ## Người quét
 
 | Use Case | Status | Ghi chú |
@@ -64,6 +75,10 @@ Mục v1.0 bên dưới được chạy lại sau khi đổi sang i18n: `npm run
 | KT-07 QR mã hoá trực tiếp URL gốc | ENFORCED | Không thêm tham số/rút gọn. Lưu ý: tên miền và đường dẫn tiếng Việt được chuẩn hoá (punycode, `%xx`) — cùng trang đích, chuỗi hiển thị khác chữ gõ; dòng "Mã hoá:" cho thấy chuỗi thật |
 | KT-08 Khung/caption không che vùng QR | ENFORCED | Đo trên màn hình: 5 khung × 2 vị trí, chữ không chồng hộp QR + quiet zone |
 | KT-09 Đổi ngôn ngữ không mất link/thiết kế/caption | ENFORCED | Ngôn ngữ nằm ngoài state thiết kế; thử thật: link, caption tiếng Việt, hoạ tiết, màu giữ nguyên, SVG xem trước giống hệt từng ký tự trước/sau khi đổi |
+| KT-11 Ảnh logo không bị tải lên đâu | ENFORCED | Đọc bằng `FileReader` thành data URL; đo `performance` sau khi chọn ảnh: 0 request mạng mới; CSP `connect-src 'self'` |
+| KT-12 Logo tối đa 30% | ENFORCED | Thanh trượt 10–30; `logoGeometry` kẹp lại về [10%, 30%] dù dữ liệu vào lớn hơn |
+| KT-13 Logo không che mắt QR / quiet zone | ENFORCED | Luôn ở tâm, không kéo được; `verify` phần 4: 1.287 tổ hợp → 0 lần chạm mắt hoặc vạch định thời; QR nhỏ nhất (25×25) thì logo tự thu nhỏ |
+| KT-14 Logo không được lưu | ENFORCED | Logo chỉ nằm trong state bộ nhớ; không có code ghi logo ra storage |
 | KT-10 Ảnh xuất không đổi theo ngôn ngữ | ENFORCED | `render.ts` không dùng i18n; nhãn mặc định "SCAN ME" ra giống nhau ở EN và VI |
 
 ## Error Cases (Khi lỗi)
@@ -82,7 +97,11 @@ Mục v1.0 bên dưới được chạy lại sau khi đổi sang i18n: `npm run
 | LO-10 Trình duyệt không cho ghi clipboard → thông báo | PARTIAL | Handler có (kiểm API + bắt lỗi), chưa kích hoạt được trong test |
 | LO-11 PNG 4096 lỗi bộ nhớ → thông báo, không tải file hỏng | PARTIAL | Handler có (`toBlob` null / lỗi decode), chưa tái hiện được lỗi bộ nhớ (4096 px tạo bình thường, 3,8 MB) |
 | LO-12 Không im lặng xuất QR khó quét | DONE | = LO-05/LO-06 |
-| LO-13 Mức sửa lỗi Q | DONE | Cố định trong `buildMatrix` |
+| LO-13 Mức sửa lỗi Q, hoặc H khi có logo | DONE | `buildMatrix(text, d.logo ? 'H' : 'Q')` |
+| LO-15 File sai loại → báo lỗi, giữ logo cũ | DONE | `notes.txt` → "Only PNG, JPG, SVG or WebP images are supported." |
+| LO-16 Ảnh > 2 MB → từ chối | DONE | File 2 MB + 10 byte → "That image is over 2 MB — please use a smaller file." |
+| LO-17 Ảnh hỏng → báo lỗi, giữ logo cũ | DONE | `broken.png` (9 byte rác) → "This image can't be read…", logo cũ còn nguyên |
+| LO-18 Ghi chú mức H; cảnh báo khi logo > 25% | DONE | Hiện "Logo added: error correction raised to H…"; ở 30% thêm "Large logo — scan-test…" |
 | LO-14 Bộ nhớ cục bộ bị chặn → English, không lỗi | DONE | Giả lập `localStorage` ném lỗi: nạp ra English, đổi sang VI vẫn chạy trong phiên, không có lỗi |
 
 ## Ghost
@@ -96,8 +115,8 @@ Mục v1.0 bên dưới được chạy lại sau khi đổi sang i18n: `npm run
 
 ## Tổng kết
 
-- DONE: 33 · PARTIAL: 4 · MISSING: 0 · BROKEN: 0
-- ENFORCED: 10 · VIOLATED: 0
+- DONE: 41 · PARTIAL: 4 · MISSING: 0 · BROKEN: 0
+- ENFORCED: 14 · VIOLATED: 0
 - GHOST: 2 (nhỏ, chờ bạn quyết)
 
 4 mục PARTIAL đều là **chưa xác minh bằng thao tác thật** (sao chép clipboard, quét bằng điện thoại, 2 nhánh lỗi khó tái hiện), không phải thiếu code. 
@@ -105,5 +124,5 @@ Mục v1.0 bên dưới được chạy lại sau khi đổi sang i18n: `npm run
 
 - [ ] Bấm **Copy image / Sao chép ảnh** rồi dán vào Word/Zalo → ảnh hiện đúng (UC-15)
 - [ ] Bấm **Download PNG** và **Download SVG** → file tên `qr-<tên miền>.png/.svg`, mở SVG ở máy khác vẫn đúng phông (UC-13, UC-14, UC-16)
-- [ ] Quét vài mẫu bằng camera iPhone, Zalo, Google Lens: chấm tròn, sọc, kim cương, khung bong bóng, chuyển sắc (UC-18)
+- [ ] Quét vài mẫu bằng camera iPhone, Zalo, Google Lens: chấm tròn, sọc, kim cương, khung bong bóng, chuyển sắc, **có logo 30%** (UC-18)
 - [ ] Mở app bằng Firefox → bấm sao chép ảnh → nếu trình duyệt không cho thì phải hiện thông báo hướng dẫn dùng nút tải PNG (LO-10)

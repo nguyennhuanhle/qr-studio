@@ -1,7 +1,7 @@
 # Use Cases — QR Studio (tạo QR cho URL)
 
 > Source of truth. Mọi code phải khớp file này. Cập nhật file này TRƯỚC khi thêm feature mới.
-> Trạng thái: **v1.2 — đã duyệt 2026-10-02** (v1.1: giao diện tiếng Anh, UC-20→22; v1.2: footer tác giả, UC-23).
+> Trạng thái: **v1.3 — đã duyệt 2026-10-02** (v1.1: giao diện tiếng Anh, UC-20→22; v1.2: footer tác giả, UC-23; v1.3: logo giữa QR, UC-24→27).
 
 ## Roles
 
@@ -51,6 +51,12 @@
 **Footer** *(v1.2)*
 - UC-23. Là người tạo, tôi thấy ở cuối trang dòng "Developed by Mr Le Nguyen Nhu Anh © <năm hiện tại>"; tên tác giả là link tới https://edtechcorner.com (mở tab mới), năm tự cập nhật theo đồng hồ máy.
 
+**Logo** *(v1.3)*
+- UC-24. Là người tạo, tôi có thể chọn ảnh logo (PNG, JPG, SVG, WebP) từ máy và thấy logo hiện ngay ở giữa QR.
+- UC-25. Là người tạo, tôi có thể chỉnh cỡ logo từ 10% đến 30% bề rộng vùng mã (mặc định 20%) và chọn nền phía sau logo: không nền, vuông bo góc, hoặc tròn (nền tô màu nền QR).
+- UC-26. Là người tạo, tôi có thể bỏ logo; nút "Về mặc định" cũng bỏ logo.
+- UC-27. Là người tạo, tôi nhận file PNG/SVG có logo; file SVG tự chứa ảnh logo nên mở ở máy khác vẫn thấy.
+
 ### Không thể
 - KT-01. Là người tạo, tôi KHÔNG THỂ tạo QR cho URL có scheme khác `http`/`https` (`javascript:`, `data:`, `file:`, `intent:`…) — app chỉ dành cho link web, chặn để không tạo QR độc hại.
 - KT-02. Là người tạo, tôi KHÔNG THỂ tải/sao chép khi chưa có URL hợp lệ — nút tải bị vô hiệu, tránh xuất ra QR rỗng hoặc QR cũ.
@@ -60,6 +66,10 @@
 - KT-06. Là người tạo, tôi KHÔNG THỂ khiến URL của mình bị gửi lên server — mọi thứ chạy trong trình duyệt.
 - KT-09. Là người tạo, tôi KHÔNG THỂ làm mất link, thiết kế hay caption khi đổi ngôn ngữ — caption là nội dung của tôi, không bị dịch.
 - KT-10. Là người tạo, tôi KHÔNG THỂ làm ảnh xuất ra thay đổi chỉ vì đổi ngôn ngữ giao diện — nhãn mặc định "SCAN ME" giữ nguyên ở cả hai ngôn ngữ.
+- KT-11. Là người tạo, tôi KHÔNG THỂ khiến ảnh logo bị tải lên server — ảnh chỉ được đọc trong trình duyệt (cùng tinh thần KT-06).
+- KT-12. Là người tạo, tôi KHÔNG THỂ cho logo to quá 30% bề rộng vùng mã — to hơn dễ không quét được.
+- KT-13. Là người tạo, tôi KHÔNG THỂ để logo hay nền logo che 3 mắt QR hoặc quiet zone — logo luôn ở chính giữa, không kéo đi được, và tự thu nhỏ nếu QR quá nhỏ.
+- KT-14. Là người tạo, tôi KHÔNG THỂ giữ logo sau khi tải lại trang — logo, như mọi phần thiết kế khác, không được lưu.
 
 ### Khi lỗi
 - LO-01. Là người tạo, khi ô URL trống, thì hệ thống hiển thị khung xem trước rỗng với gợi ý "Dán link vào để bắt đầu", nút tải bị vô hiệu.
@@ -74,6 +84,10 @@
 - LO-10. Là người tạo, khi trình duyệt không cho ghi clipboard (Firefox cũ, chưa cấp quyền), thì hệ thống báo "Trình duyệt không cho sao chép ảnh — hãy dùng nút Tải PNG".
 - LO-11. Là người tạo, khi xuất PNG 4096 px thất bại (thiếu bộ nhớ), thì hệ thống báo lỗi và gợi ý chọn kích thước nhỏ hơn, không tải về file hỏng.
 - LO-14. Là người tạo, khi trình duyệt chặn bộ nhớ cục bộ (ẩn danh, chặn cookie), thì hệ thống dùng tiếng Anh và không báo lỗi; nút đổi ngôn ngữ vẫn chạy trong phiên đó.
+- LO-15. Là người tạo, khi tôi chọn file không phải PNG/JPG/SVG/WebP, thì hệ thống báo "Chỉ nhận ảnh PNG, JPG, SVG hoặc WebP" và giữ nguyên logo cũ (nếu có).
+- LO-16. Là người tạo, khi tôi chọn ảnh lớn hơn 2 MB, thì hệ thống từ chối và gợi ý dùng ảnh nhỏ hơn.
+- LO-17. Là người tạo, khi file ảnh hỏng hoặc trình duyệt không đọc được, thì hệ thống báo "Không đọc được ảnh này" và giữ nguyên logo cũ (nếu có).
+- LO-18. Là người tạo, khi QR có logo, thì hệ thống ghi chú "Đã nâng mức sửa lỗi lên H"; khi logo lớn hơn 25%, thì cảnh báo "Logo lớn — nên quét thử trước khi in".
 
 ---
 
@@ -89,13 +103,13 @@
 
 ### Khi lỗi
 - LO-12. Là người quét, khi QR được thiết kế với màu tương phản thấp hoặc đảo màu, thì người tạo đã được cảnh báo từ lúc thiết kế (LO-05, LO-06) — hệ thống không được im lặng xuất QR khó quét.
-- LO-13. Là người quét, khi QR bị trầy/bẩn một phần nhỏ, thì vẫn quét được nhờ mức sửa lỗi Q (~25%) mà hệ thống luôn dùng.
+- LO-13. Là người quét, khi QR bị trầy/bẩn một phần nhỏ, thì vẫn quét được nhờ mức sửa lỗi Q (~25%) khi không có logo, và H (~30%) khi có logo (phần dưới logo coi như bị che).
 
 ---
 
 ## Hệ thống KHÔNG làm
 
-- Không chèn logo/ảnh vào giữa QR — chưa được yêu cầu; nếu cần thì thêm qua Phase 5.
+- Không kéo/thả hay đặt logo lệch tâm, không cắt/chỉnh sửa ảnh logo trong app.
 - Không có QR động, thống kê lượt quét, rút gọn link — cần server, trái KT-06/KT-07.
 - Không có tài khoản, lưu lịch sử, thư viện thiết kế đã lưu.
 - Không hỗ trợ loại nội dung khác URL (WiFi, vCard, văn bản, email, SMS…).

@@ -79,7 +79,32 @@
         </div>
 
         <div class="card">
-          <div class="card-head"><h2><span class="step">4</span><span data-i18n="section.caption">Caption</span></h2></div>
+          <div class="card-head"><h2><span class="step">4</span><span data-i18n="section.logo">Logo</span></h2></div>
+          <div class="logo-pick">
+            <div id="logo-thumb" class="logo-thumb" aria-hidden="true"></div>
+            <div class="logo-actions">
+              <div class="logo-buttons">
+                <label class="btn" for="logo-file"><span id="logo-choose">Choose image…</span></label>
+                <input id="logo-file" class="sr-only" type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp,.png,.jpg,.jpeg,.svg,.webp" />
+                <button id="logo-remove" class="btn btn-ghost when-logo-inline" type="button" data-i18n="logo.remove">Remove</button>
+              </div>
+              <p class="hint" data-i18n="logo.hint">PNG, JPG, SVG or WebP, up to 2 MB. The image stays on your device.</p>
+            </div>
+          </div>
+          <p id="logo-msg" class="field-msg" aria-live="polite"></p>
+          <div class="when-logo">
+            <div class="slider-row">
+              <label for="logo-size" data-i18n="logo.size">Logo size</label>
+              <input id="logo-size" type="range" step="1" />
+              <output id="logo-size-out"></output>
+            </div>
+            <p class="label" data-i18n="logo.plate">Behind the logo</p>
+            <div id="logo-plate" class="segmented" role="radiogroup" data-i18n-aria="logo.plate.aria"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2><span class="step">5</span><span data-i18n="section.caption">Caption</span></h2></div>
           <div class="caption-field">
             <label class="sr-only" for="caption" data-i18n="caption.label">Caption</label>
             <input id="caption" type="text" maxlength="60" placeholder="e.g. Scan to sign up" />
@@ -107,7 +132,7 @@
         </div>
 
         <div class="card">
-          <div class="card-head"><h2><span class="step">5</span><span data-i18n="section.frame">Frame</span></h2></div>
+          <div class="card-head"><h2><span class="step">6</span><span data-i18n="section.frame">Frame</span></h2></div>
           <div id="frame" class="tiles tiles-5" role="radiogroup" data-i18n-aria="frame.aria"></div>
           <div class="when-frame">
             <div id="frame-color"></div>
