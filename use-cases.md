@@ -1,7 +1,7 @@
 # Use Cases — QR Studio (tạo QR cho URL)
 
 > Source of truth. Mọi code phải khớp file này. Cập nhật file này TRƯỚC khi thêm feature mới.
-> Trạng thái: **v1.1 — đã duyệt 2026-10-02** (v1.1: thêm giao diện tiếng Anh, UC-20→22).
+> Trạng thái: **v1.2 — đã duyệt 2026-10-02** (v1.1: giao diện tiếng Anh, UC-20→22; v1.2: footer tác giả, UC-23).
 
 ## Roles
 
@@ -47,6 +47,9 @@
 - UC-20. Là người tạo, tôi có thể đổi giao diện giữa English và Tiếng Việt bằng nút EN/VI ở đầu trang.
 - UC-21. Là người tạo, khi mở app lần đầu, tôi thấy giao diện tiếng Anh (mặc định).
 - UC-22. Là người tạo, khi mở lại app, tôi thấy đúng ngôn ngữ đã chọn lần trước (chỉ lưu trên trình duyệt của tôi).
+
+**Footer** *(v1.2)*
+- UC-23. Là người tạo, tôi thấy ở cuối trang dòng "Developed by Mr Le Nguyen Nhu Anh © <năm hiện tại>"; tên tác giả là link tới https://edtechcorner.com (mở tab mới), năm tự cập nhật theo đồng hồ máy.
 
 ### Không thể
 - KT-01. Là người tạo, tôi KHÔNG THỂ tạo QR cho URL có scheme khác `http`/`https` (`javascript:`, `data:`, `file:`, `intent:`…) — app chỉ dành cho link web, chặn để không tạo QR độc hại.

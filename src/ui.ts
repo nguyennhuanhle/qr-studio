@@ -339,6 +339,7 @@ export function initUi() {
     caption.placeholder = inBand() ? t('caption.placeholderBand', { label: DEFAULT_LABEL }) : t('caption.placeholder');
   });
 
+  $('year').textContent = String(new Date().getFullYear()); // UC-23: năm tự cập nhật
   applyStatic();
   void document.fonts.ready.then(schedule);
   update();

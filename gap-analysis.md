@@ -1,6 +1,6 @@
-# Gap Analysis — 2026-10-02 (v1.1: sau Phase 5 thêm giao diện tiếng Anh)
+# Gap Analysis — 2026-10-02 (v1.2: giao diện tiếng Anh + footer tác giả)
 
-Đối chiếu code hiện tại với `use-cases.md` v1.1.
+Đối chiếu code hiện tại với `use-cases.md` v1.2.
 Mục v1.0 bên dưới được chạy lại sau khi đổi sang i18n: `npm run verify` vẫn 91/91, các chuỗi lỗi/cảnh báo hiển thị đúng ở cả EN và VI. Chỉ ghi sự thật đã kiểm được.
 
 **Bằng chứng đã chạy:**
@@ -37,6 +37,12 @@ Mục v1.0 bên dưới được chạy lại sau khi đổi sang i18n: `npm run
 | UC-20 Đổi English ↔ Tiếng Việt bằng nút EN/VI | DONE | Đổi xong không còn chữ tiếng Việt nào sót lại trong chế độ EN (đã quét toàn bộ chữ, placeholder, aria-label, title) |
 | UC-21 Lần đầu mở là English | DONE | Xoá bộ nhớ rồi tải lại → `lang="en"`, nút EN được chọn |
 | UC-22 Nhớ ngôn ngữ đã chọn | DONE | Chọn VI rồi tải lại trang → vẫn VI |
+
+## Footer (v1.2)
+
+| Use Case | Status | Ghi chú |
+|---|---|---|
+| UC-23 Footer "Developed by Mr Le Nguyen Nhu Anh © năm", link edtechcorner.com, năm tự cập nhật | DONE | EN: "Developed by Mr Le Nguyen Nhu Anh © 2026", VI: "Phát triển bởi …"; link mở tab mới (`rel=noopener`); giả lập đồng hồ năm 2031 → footer hiện 2031 |
 
 ## Người quét
 
@@ -90,7 +96,7 @@ Mục v1.0 bên dưới được chạy lại sau khi đổi sang i18n: `npm run
 
 ## Tổng kết
 
-- DONE: 32 · PARTIAL: 4 · MISSING: 0 · BROKEN: 0
+- DONE: 33 · PARTIAL: 4 · MISSING: 0 · BROKEN: 0
 - ENFORCED: 10 · VIOLATED: 0
 - GHOST: 2 (nhỏ, chờ bạn quyết)
 

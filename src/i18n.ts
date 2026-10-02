@@ -105,6 +105,8 @@ const en = {
   'warn.transparent': 'Transparent background: place the QR on a background that contrasts with the pattern color.',
   'warn.contrast': 'Colors are too similar (contrast {ratio}:1, aim for at least {min}:1) — it may not scan.',
   'warn.inverted': 'Pattern is lighter than the background (inverted QR) — many scanners can’t read it.',
+
+  'footer.developedBy': 'Developed by',
 };
 
 export type Key = keyof typeof en;
@@ -210,6 +212,8 @@ const vi: Record<Key, string> = {
   'warn.transparent': 'Nền trong suốt: nhớ đặt QR lên nền tương phản với màu hoạ tiết.',
   'warn.contrast': 'Màu quá giống nhau (tương phản {ratio}:1, nên ≥ {min}:1) — có thể không quét được.',
   'warn.inverted': 'Hoạ tiết sáng hơn nền (QR đảo màu) — nhiều máy quét không đọc được.',
+
+  'footer.developedBy': 'Phát triển bởi',
 };
 
 const DICT: Record<Lang, Record<Key, string>> = { en, vi };
